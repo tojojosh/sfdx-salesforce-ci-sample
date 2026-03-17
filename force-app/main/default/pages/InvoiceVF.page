@@ -1,0 +1,9 @@
+<apex:page controller="InvoiceVFController">
+    <apex:pageBlock title="Invoices (Visualforce)">
+        <apex:pageBlockTable value="{!invoices}" var="inv">
+            <apex:column value="{!inv.Name}" headerValue="Name"/>
+            <apex:column value="{!inv.Amount__c}" headerValue="Amount"/>
+            <apex:column value="{!inv.Status__c}" headerValue="Status"/>
+        </apex:pageBlockTable>
+    </apex:pageBlock>
+</apex:page>

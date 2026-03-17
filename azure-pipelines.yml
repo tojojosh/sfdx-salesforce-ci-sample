@@ -1,0 +1,44 @@
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+  - checkout: self
+
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '20.x'
+    displayName: 'Install Node.js'
+
+  - script: |
+      npm install --global @salesforce/cli
+    displayName: 'Install Salesforce CLI'
+
+  - script: |
+      echo $(SFDX_AUTH_URL) > auth-url.txt
+      sf org login sfdx-url --sfdx-url-file auth-url.txt --alias ci-hub --set-default-dev-hub
+    displayName: 'Authenticate Dev Hub'
+    env:
+      SFDX_AUTH_URL: $(SFDX_AUTH_URL)
+
+  - script: |
+      sf org create scratch --definition-file config/project-scratch-def.json --alias ci-org --duration-days 1 --set-default
+    displayName: 'Create Scratch Org'
+
+  - script: |
+      sf project deploy start --source-dir force-app --target-org ci-org --ignore-conflicts
+    displayName: 'Deploy Source to Scratch Org'
+
+  - script: |
+      sf apex run test --target-org ci-org --result-format human --code-coverage
+    displayName: 'Run Apex Tests'
+
+  - script: |
+      sf org delete scratch --target-org ci-org --no-prompt
+    displayName: 'Delete Scratch Org'
+    condition: always()
+

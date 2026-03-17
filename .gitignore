@@ -1,0 +1,6 @@
+# Salesforce CI/CD Sample
+.sfdx/
+.sf/
+.vscode/
+*.log
+node_modules/

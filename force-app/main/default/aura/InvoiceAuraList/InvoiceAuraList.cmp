@@ -1,0 +1,20 @@
+<aura:component controller="InvoiceListController"
+                implements="flexipage:availableForAllPageTypes"
+                access="global">
+    <aura:attribute name="invoices" type="Invoice__c[]"/>
+    <aura:attribute name="error" type="String"/>
+
+    <lightning:card title="Invoices (Aura)">
+        <aura:if isTrue="{!not(empty(v.invoices))}">
+            <lightning:datatable
+                    keyField="Id"
+                    data="{!v.invoices}"
+                    columns="{!v.columns}"/>
+            <aura:set attribute="else">
+                <aura:if isTrue="{!v.error}">
+                    <lightning:formattedText value="{!v.error}" />
+                </aura:if>
+            </aura:set>
+        </aura:if>
+    </lightning:card>
+</aura:component>

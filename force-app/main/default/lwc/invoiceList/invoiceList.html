@@ -1,0 +1,14 @@
+<template>
+    <lightning-card title="Invoices (LWC)" icon-name="standard:orders">
+        <template if:true={invoices}>
+            <lightning-datatable
+                key-field="Id"
+                data={invoices}
+                columns={columns}>
+            </lightning-datatable>
+        </template>
+        <template if:true={error}>
+            <c-error-panel errors={error}></c-error-panel>
+        </template>
+    </lightning-card>
+</template>
