@@ -19,7 +19,7 @@ steps:
     displayName: 'Install Salesforce CLI'
 
   - script: |
-      echo $(SFDX_AUTH_URL) > auth-url.txt
+      echo "$(SFDX_AUTH_URL)" > auth-url.txt
       sf org login sfdx-url --sfdx-url-file auth-url.txt --alias ci-hub --set-default-dev-hub
     displayName: 'Authenticate Dev Hub'
     env:
