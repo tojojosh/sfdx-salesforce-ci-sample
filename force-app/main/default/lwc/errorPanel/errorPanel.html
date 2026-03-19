@@ -1,0 +1,11 @@
+<template>
+    <div class="error-panel">
+        <template if:true={stringifiedErrors}>
+            <pre>{stringifiedErrors}</pre>
+        </template>
+        <template if:false={stringifiedErrors}>
+            <div>No error details.</div>
+        </template>
+    </div>
+</template>
+
