@@ -1,0 +1,15 @@
+<template>
+    <lightning-card title="Deployment Tests (LWC)" icon-name="standard:account">
+        <template if:true={deploymentTests}>
+            <lightning-datatable
+                key-field="Id"
+                data={deploymentTests}
+                columns={columns}>
+            </lightning-datatable>
+        </template>
+        <template if:true={error}>
+            <c-error-panel errors={error}></c-error-panel>
+        </template>
+    </lightning-card>
+</template>
+

@@ -4,3 +4,6 @@
 .vscode/
 *.log
 node_modules/
+
+# Local auth exports (never commit secrets)
+authFile.json

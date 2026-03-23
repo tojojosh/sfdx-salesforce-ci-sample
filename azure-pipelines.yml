@@ -6,6 +6,11 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
+variables:
+  # If you have an unlocked package version id (starts with 04t...), set it as a pipeline variable/secret.
+  # Example: PACKAGE_VERSION_ID: 04tXXXXXXXXXXXX
+  PACKAGE_VERSION_ID: ''
+
 steps:
   - checkout: self
 
@@ -20,25 +25,30 @@ steps:
 
   - script: |
       echo "$(SFDX_AUTH_URL)" > auth-url.txt
-      sf org login sfdx-url --sfdx-url-file auth-url.txt --alias ci-hub --set-default-dev-hub
-    displayName: 'Authenticate Dev Hub'
+      sf org login sfdx-url --sfdx-url-file auth-url.txt --alias dev-org --set-default-dev-hub
+    displayName: 'Authenticate Dev Hub / Target Dev Org'
     env:
       SFDX_AUTH_URL: $(SFDX_AUTH_URL)
 
   - script: |
-      sf org create scratch --definition-file config/project-scratch-def.json --alias ci-org --duration-days 1 --set-default
-    displayName: 'Create Scratch Org'
+      set -euo pipefail
+
+      echo "PACKAGE_VERSION_ID='$(PACKAGE_VERSION_ID)'"
+
+      if [ -n "$(PACKAGE_VERSION_ID)" ]; then
+        echo "Installing unlocked package into dev-org..."
+        sf package install --package "$(PACKAGE_VERSION_ID)" \
+          --target-org dev-org \
+          --wait 20 \
+          --publish-wait 10 \
+          --no-prompt
+      else
+        echo "PACKAGE_VERSION_ID not set; deploying source directly to dev-org..."
+        sf project deploy start --source-dir force-app --target-org dev-org --ignore-conflicts
+      fi
+    displayName: 'Deploy to Dev Org (Package Install or Direct Deploy)'
 
   - script: |
-      sf project deploy start --source-dir force-app --target-org ci-org --ignore-conflicts
-    displayName: 'Deploy Source to Scratch Org'
-
-  - script: |
-      sf apex run test --target-org ci-org --result-format human --code-coverage
-    displayName: 'Run Apex Tests'
-
-  - script: |
-      sf org delete scratch --target-org ci-org --no-prompt
-    displayName: 'Delete Scratch Org'
-    condition: always()
+      sf apex run test --target-org dev-org --result-format human --code-coverage
+    displayName: 'Run Apex Tests (on Dev Org)'
 
